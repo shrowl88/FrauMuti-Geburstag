@@ -467,12 +467,13 @@ export default function GalaxyExperience({ onComplete }) {
       <div className="absolute top-10 left-1/2 -translate-x-1/2 z-20 pointer-events-none text-center w-full px-4">
         <h1 className="font-script text-4xl md:text-5xl text-center drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
           {phase === "galaxy"
-            ? "✨ Bintang Penuntun Kami ✨"
-            : "💥 Membuka Kenangan 💥"}
+            ? "✨Gebete von uns, die zum Himmel geflogen sind✨"
+            : "💥💥"}
         </h1>
         {isGalaxy && (
           <p className="text-amber-200/80 mt-2 text-sm md:text-base font-sans tracking-wide">
-            Klik nama-nama bersinar untuk membaca pesan murid-murid Ibu 💌
+            Klicke auf die leuchtenden Namen, um die Nachrichten von uns zu
+            lesen
           </p>
         )}
       </div>
