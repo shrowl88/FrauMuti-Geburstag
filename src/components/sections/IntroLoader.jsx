@@ -64,7 +64,7 @@ export default function IntroLoader({ onComplete }) {
               transition={{ duration: 1 }}
               className="text-white text-3xl md:text-5xl font-light tracking-wide drop-shadow-xl"
             >
-              Ein Moment Bitte...
+              Einen Moment, Bitte...
             </motion.h1>
 
             <div className="mt-8 w-64 h-2 rounded-full bg-white/30 overflow-hidden">

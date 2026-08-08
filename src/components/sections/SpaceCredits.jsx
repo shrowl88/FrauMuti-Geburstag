@@ -157,7 +157,7 @@ export default function SpaceCredits({ onRestart }) {
           menerangi jalan kami.
           <br />
           <br />
-          Semoga kebaikan, ilmu, dan dedikasi Ibu kembali berlipat ganda di
+          Semoga kebaikan, ilmu, dan dedikasi Frau kembali berlipat ganda di
           dunia maupun di akhirat.
         </p>
 

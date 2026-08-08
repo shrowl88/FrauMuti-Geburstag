@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Howler } from "howler";
 import { fireConfetti } from "./lib/confetti";
 import IntroLoader from "./components/sections/IntroLoader";
 import WelcomeGate from "./components/sections/WelcomeGate";
@@ -23,13 +24,11 @@ export default function App() {
 
   const nextStage = useCallback(() => setStage((prev) => prev + 1), []);
 
-  // FUNGSI BARU: Dijalankan saat IntroLoader selesai
   const handleLoaderComplete = useCallback(() => {
-    setAllowMusic(true); // Nyalakan musik tepat setelah loading
-    setStage((prev) => prev + 1); // Lanjut ke WelcomeGate
+    setAllowMusic(true);
+    setStage((prev) => prev + 1);
   }, []);
 
-  // Saat tombol "Buka Pintu Kelas" diklik, cukup lanjut halaman saja
   const handleEnter = useCallback(() => {
     setStage((prev) => prev + 1);
   }, []);
@@ -39,10 +38,18 @@ export default function App() {
     setTimeout(() => setStage((prev) => prev + 1), 2000);
   }, []);
 
+  // EFEK BANGUNKAN MUSIK SETELAH MIKROFON/VIDEO DIMATIKAN
+  useEffect(() => {
+    if (allowMusic) {
+      if (Howler.ctx && Howler.ctx.state === "suspended") {
+        Howler.ctx.resume();
+      }
+    }
+  }, [stage, allowMusic]);
+
   const renderStage = () => {
     switch (stage) {
       case -1:
-        // Gunakan handleLoaderComplete, bukan nextStage
         return <IntroLoader onComplete={handleLoaderComplete} />;
       case 0:
         return <WelcomeGate onEnter={handleEnter} />;
@@ -86,8 +93,8 @@ export default function App() {
           />
           <FloatingDecorations count={45} />
 
-          <div className="fixed top:0 left:0 w-full h-full pointer-events-none z-0">
-            <div className="absolute top[-10%] left-[-10%] w-[50vw] h-[50vw] bg-amber-300/20 rounded-full blur-[100px] animate-float"></div>
+          <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+            <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-amber-300/20 rounded-full blur-[100px] animate-float"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-emerald-300/20 rounded-full blur-[100px] animate-float"></div>
           </div>
         </>

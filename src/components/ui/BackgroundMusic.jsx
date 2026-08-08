@@ -10,9 +10,9 @@ export default function BackgroundMusic({ startPlaying, videoPlaying }) {
 
   const tracks = [`/audio/playlist.mp3`, `/audio/lany.mp3`];
 
-  // 1. Inisialisasi Howl & Unlock Browser
+  // 1. Inisialisasi Howl
   useEffect(() => {
-    Howler.autoUnlock = true; // Paksa browser mengizinkan audio
+    Howler.autoUnlock = true;
 
     soundRef.current = new Howl({
       src: [tracks[currentTrack]],
@@ -43,37 +43,53 @@ export default function BackgroundMusic({ startPlaying, videoPlaying }) {
     if (hasPlayed) soundRef.current.play();
   }, [currentTrack]);
 
-  // 3. Play Music saat startPlaying TRUE (Dengan Trik Pendeteksi Klik Layar)
+  // 3. Play Music saat startPlaying TRUE (Anti-Bug Multiple Play)
   useEffect(() => {
-    if (startPlaying && soundRef.current && !hasPlayed) {
-      // Coba putar langsung (biasanya diblokir browser jika belum ada klik)
-      soundRef.current.play();
+    if (!startPlaying || hasPlayed || !soundRef.current) return;
 
-      // Trik: Jika diblokir, dengarkan klik pertama di layar mana pun
-      const unlockAndPlay = () => {
-        if (!hasPlayed) {
-          soundRef.current.play();
-          setHasPlayed(true);
-          document.removeEventListener("click", unlockAndPlay);
-          document.removeEventListener("touchstart", unlockAndPlay);
-        }
-      };
+    const sound = soundRef.current;
 
-      document.addEventListener("click", unlockAndPlay);
-      document.addEventListener("touchstart", unlockAndPlay);
+    const playOnce = () => {
+      // Pastikan hanya play jika belum playing
+      if (!sound.playing()) {
+        sound.play();
+      }
+      setHasPlayed(true); // Tandai sudah play agar fungsi ini tidak jalan lagi
+    };
 
-      // Tandai sudah play agar tidak diulang
-      setHasPlayed(true);
+    // Jika audio sudah selesai di-load, coba langsung play
+    if (sound.state() === "loaded") {
+      playOnce();
+    } else {
+      // Jika belum selesai load, tunggu sampai load baru play
+      sound.once("load", playOnce);
     }
+
+    // Fallback: Jika browser memblokir, dengarkan klik pertama di layar
+    const handleInteraction = () => playOnce();
+    document.addEventListener("click", handleInteraction);
+    document.addEventListener("touchstart", handleInteraction);
+
+    // Cleanup function untuk menghapus event listener agar tidak nabrak
+    return () => {
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
+    };
   }, [startPlaying, hasPlayed]);
 
-  // 4. Fade Pas Video
+  // 4. Fade Pas Video (Anti-Bug Mati Total)
   useEffect(() => {
     if (soundRef.current && hasPlayed) {
+      const currentVol = soundRef.current.volume();
       if (videoPlaying) {
-        soundRef.current.fade(0.4, 0.0, 1000);
+        // Fade out musik
+        soundRef.current.fade(currentVol, 0.0, 500);
       } else {
-        soundRef.current.fade(0.0, 0.4, 1000);
+        // Pastikan audio sedang playing, lalu fade in musik kembali
+        if (!soundRef.current.playing()) {
+          soundRef.current.play();
+        }
+        soundRef.current.fade(currentVol, 0.4, 500);
       }
     }
   }, [videoPlaying]);
