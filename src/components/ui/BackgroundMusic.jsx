@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Howl } from "howler";
+import { Howl, Howler } from "howler";
 import { FiVolume2, FiVolumeX, FiSkipForward } from "react-icons/fi";
 
 export default function BackgroundMusic({ startPlaying, videoPlaying }) {
@@ -10,8 +10,10 @@ export default function BackgroundMusic({ startPlaying, videoPlaying }) {
 
   const tracks = [`/audio/playlist.mp3`, `/audio/lany.mp3`];
 
-  // 1. Inisialisasi Howl
+  // 1. Inisialisasi Howl & Unlock Browser
   useEffect(() => {
+    Howler.autoUnlock = true; // Paksa browser mengizinkan audio
+
     soundRef.current = new Howl({
       src: [tracks[currentTrack]],
       volume: 0.4,
@@ -21,9 +23,6 @@ export default function BackgroundMusic({ startPlaying, videoPlaying }) {
         setCurrentTrack((prev) => (prev + 1) % tracks.length);
       },
     });
-
-    // PENTING: Paksa browser unlock audio context
-    Howler.autoUnlock = true;
 
     return () => {
       if (soundRef.current) soundRef.current.unload();
@@ -44,37 +43,37 @@ export default function BackgroundMusic({ startPlaying, videoPlaying }) {
     if (hasPlayed) soundRef.current.play();
   }, [currentTrack]);
 
-  // 3. Play Music saat startPlaying TRUE
+  // 3. Play Music saat startPlaying TRUE (Dengan Trik Pendeteksi Klik Layar)
   useEffect(() => {
     if (startPlaying && soundRef.current && !hasPlayed) {
-      // Gunakan play() yang mengembalikan promise untuk menangkap error browser
-      const playPromise = soundRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then((_) => {
-            setHasPlayed(true); // Berhasil diputar
-          })
-          .catch((error) => {
-            console.error("Browser memblokir autoplay:", error);
-            // Jika diblokir, kita tunggu user klik satu kali lagi di mana saja
-            const unlockAudio = () => {
-              soundRef.current.play();
-              setHasPlayed(true);
-              document.removeEventListener("click", unlockAudio);
-            };
-            document.addEventListener("click", unlockAudio);
-          });
-      }
+      // Coba putar langsung (biasanya diblokir browser jika belum ada klik)
+      soundRef.current.play();
+
+      // Trik: Jika diblokir, dengarkan klik pertama di layar mana pun
+      const unlockAndPlay = () => {
+        if (!hasPlayed) {
+          soundRef.current.play();
+          setHasPlayed(true);
+          document.removeEventListener("click", unlockAndPlay);
+          document.removeEventListener("touchstart", unlockAndPlay);
+        }
+      };
+
+      document.addEventListener("click", unlockAndPlay);
+      document.addEventListener("touchstart", unlockAndPlay);
+
+      // Tandai sudah play agar tidak diulang
+      setHasPlayed(true);
     }
   }, [startPlaying, hasPlayed]);
 
   // 4. Fade Pas Video
   useEffect(() => {
-    if (soundRef.current) {
+    if (soundRef.current && hasPlayed) {
       if (videoPlaying) {
         soundRef.current.fade(0.4, 0.0, 1000);
       } else {
-        if (hasPlayed) soundRef.current.fade(0.0, 0.4, 1000);
+        soundRef.current.fade(0.0, 0.4, 1000);
       }
     }
   }, [videoPlaying]);

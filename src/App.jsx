@@ -12,7 +12,7 @@ import BirthdayCake from "./components/sections/BirthdayCake";
 import Celebration from "./components/sections/Celebration";
 import FinalEnding from "./components/sections/FinalEnding";
 import IntroGalaxy from "./components/sections/IntroGalaxy";
-import SpaceCredits from "./components/sections/SpaceCredits"; // Section baru
+import SpaceCredits from "./components/sections/SpaceCredits";
 import FloatingDecorations from "./components/ui/FloatingDecorations";
 import BackgroundMusic from "./components/ui/BackgroundMusic";
 
@@ -23,8 +23,14 @@ export default function App() {
 
   const nextStage = useCallback(() => setStage((prev) => prev + 1), []);
 
+  // FUNGSI BARU: Dijalankan saat IntroLoader selesai
+  const handleLoaderComplete = useCallback(() => {
+    setAllowMusic(true); // Nyalakan musik tepat setelah loading
+    setStage((prev) => prev + 1); // Lanjut ke WelcomeGate
+  }, []);
+
+  // Saat tombol "Buka Pintu Kelas" diklik, cukup lanjut halaman saja
   const handleEnter = useCallback(() => {
-    setAllowMusic(true);
     setStage((prev) => prev + 1);
   }, []);
 
@@ -36,7 +42,8 @@ export default function App() {
   const renderStage = () => {
     switch (stage) {
       case -1:
-        return <IntroLoader onComplete={nextStage} />;
+        // Gunakan handleLoaderComplete, bukan nextStage
+        return <IntroLoader onComplete={handleLoaderComplete} />;
       case 0:
         return <WelcomeGate onEnter={handleEnter} />;
       case 1:
@@ -53,17 +60,17 @@ export default function App() {
           />
         );
       case 5:
-        return <GiftBox onContinue={nextStage} />; // GiftBox setelah Video
+        return <GiftBox onContinue={nextStage} />;
       case 6:
         return <BirthdayCake onBlow={handleBlowCandles} />;
       case 7:
         return <Celebration onContinue={nextStage} />;
       case 8:
-        return <FinalEnding onContinue={nextStage} />; // FinalEnding sebelum Galaxy
+        return <FinalEnding onContinue={nextStage} />;
       case 9:
-        return <IntroGalaxy onComplete={nextStage} />; // Galaxy
+        return <IntroGalaxy onComplete={nextStage} />;
       case 10:
-        return <SpaceCredits onRestart={() => setStage(0)} />; // Penutup Luar Angkasa
+        return <SpaceCredits onRestart={() => setStage(0)} />;
       default:
         return null;
     }
