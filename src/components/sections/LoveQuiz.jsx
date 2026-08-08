@@ -37,6 +37,11 @@ const questions = [
       "Mit dem Topf bestrafen",
     ],
   },
+  {
+    q: "Wer ist Frau Mutis Lieblingsschauspieler aus Korea?",
+    a: "Byeon Woo Seok",
+    options: ["⁠Na In Woo", "⁠Lee Min Ho", "Byeon Woo Seok"],
+  },
 ];
 
 export default function LoveQuiz({ onContinue }) {

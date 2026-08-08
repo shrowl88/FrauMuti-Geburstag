@@ -97,10 +97,18 @@ export default function GuestBook({ onContinue }) {
             disabled={isSending}
             className="font-fredoka flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-300 to-yellow-500 text-black font-bold hover:scale-[1.02] transition-transform shadow-[0_0_25px_rgba(252,211,77,0.4)] mt-2 disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-not-allowed"
           >
-            {isSending ? "Wird gesendet..." : "Absenden (Kirim)"} <FiSend />
+            {isSending ? "Wird gesendet..." : "Absenden"} <FiSend />
           </button>
         </form>
       </div>
+
+      {/* TOMBOL SKIP TRANSPARAN (Menyatu dengan background, warna putih) */}
+      <button
+        onClick={onContinue}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 px-8 py-2 text-white/40 font-light tracking-[0.3em] text-xs uppercase hover:text-white transition-all bg-transparent"
+      >
+        Weiter ➔
+      </button>
 
       {/* POP UP BERHASIL KIRIM */}
       <AnimatePresence>
